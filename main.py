@@ -1,31 +1,25 @@
-import time
-import random
-import datetime
+import asyncio
 import telepot
+import telepot.aio
+import pprint
+from telepot.aio.loop import MessageLoop
+from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
-"""
-A simple bot that accepts two commands:
-- /roll : reply with a random integer between 1 and 6, like rolling a dice.
-- /time : reply with the current time, like a clock.
-INSERT TOKEN below in the code, and run:
-$ python diceyclock.py
-Ctrl-C to kill.
-"""
+TOKEN = '5311863686:AAHLNjst3Wcbkrfouc4MnCVfxKz7Xnrp0V8'
+bot = telepot.Bot(TOKEN)
 
-def handle(msg):
-    chat_id = msg['chat']['id']
-    command = msg['text']
+async def handle(msg):
+    content_type, chat_type, chat_id = telepot.glance(msg)
+    pprint.pprint(msg)
+    if content_type == 'text':
+        message=msg['text']
+        await bot.sendMessage(chat_id,'Hi!')
+        return
 
-    print 'Got command: %s' % command
+bot = telepot.aio.Bot(TOKEN)
+loop = asyncio.get_event_loop()
 
-    if command == '/roll':
-        bot.sendMessage(chat_id, random.randint(1,6))
-    elif command == '/time':
-        bot.sendMessage(chat_id, str(datetime.datetime.now()))
+loop.create_task(MessageLoop(bot, handle).run_forever())
+print('Listening ...')
 
-bot = telepot.Bot('5311863686:AAHLNjst3Wcbkrfouc4MnCVfxKz7Xnrp0V8')
-bot.message_loop(handle)
-print 'I am listening ...'
-
-while 1:
-    time.sleep(10)
+loop.run_forever()
